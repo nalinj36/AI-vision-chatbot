@@ -2,6 +2,10 @@ import json
 from google import genai
 from google.genai import types
 import streamlit as st
+import smtplib
+from email.mime.text import MIMEText
+import asyncio
+from telegram import Bot
 
 from twilio.rest import Client as TwilioClient
 
@@ -13,6 +17,32 @@ TWILIO_ACCOUNT_SID = st.secrets["TWILIO_ACCOUNT_SID"]
 TWILIO_AUTH_TOKEN = st.secrets["TWILIO_AUTH_TOKEN"]
 TWILIO_WHATSAPP_FROM = st.secrets["TWILIO_WHATSAPP_FROM"]
 TWILIO_CONTENT_SID = st.secrets["TWILIO_CONTENT_SID"]
+
+
+ 
+GMAIL_ADDRESS = st.secrets["GMAIL_ADDRESS"]
+GMAIL_APP_PASSWORD = st.secrets["GMAIL_APP_PASSWORD"]
+
+
+
+ 
+TELEGRAM_BOT_TOKEN = st.secrets["TELEGRAM_BOT_TOKEN"]
+ 
+ 
+def send_telegram(chat_id, text):
+    bot = Bot(token=TELEGRAM_BOT_TOKEN)
+    asyncio.run(bot.send_message(chat_id=chat_id, text=text))
+
+ 
+def send_email(to_address, subject, body):
+    message = MIMEText(body)
+    message["Subject"] = subject
+    message["From"] = GMAIL_ADDRESS
+    message["To"] = to_address
+ 
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+        server.send_message(message)
 
 
 @st.cache_resource
